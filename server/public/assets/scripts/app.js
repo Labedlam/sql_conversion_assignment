@@ -28,7 +28,7 @@ function getData(values){
 }
 
 function addSomeone(){
-   event.preventDefault();
+   event.preventDefault();// why was this preventing it from appending to the DOM
    var values = {};
 
    $.each($(this).serializeArray(), function(i, field){
@@ -63,13 +63,17 @@ function deletePerson(){
 
 function updateDOM(data){
    $("#peopleContainer").empty();
+   console.log(data.spiritanimal);
 
-   for(var i = 0; i < data.length; i++){
+   for(
+      var i = 0; i < data.length; i++){
       var el = "<div class='well col-md-3'>" +
                   "<p>" + data[i].name + "</p>" +
                   "<p>" + data[i].location + "</p>" +
+                  "<p>" + data[i].address + "</p>"+
+                  "<p>" + data[i].spiritanimal + "</p>"+
                   "<button class='delete btn btn-danger' data-id='" +
-                     data[i]._id + "'>Delete</button>" +
+                     data[i].id + "'>Delete</button>" +
                "</div>";
 
       $("#peopleContainer").append(el);

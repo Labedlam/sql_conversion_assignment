@@ -5,7 +5,7 @@ var path = require('path');
 var bodyParser = require('body-parser');
 
 var pg = require('pg');
-var connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/sql_lecture';
+var connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/sql_SpiritAnimal';
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({expanded: true}));
@@ -16,7 +16,7 @@ app.get('/data', function(req,res){
 
     //SQL Query > SELECT data from table
     pg.connect(connectionString, function (err, client, done) {
-        var query = client.query("SELECT id, name, location FROM people ORDER BY name ASC");
+        var query = client.query("SELECT id, name,location, spiritanimal, address  FROM people ORDER BY name ASC");
 
         // Stream results back one row at a time, push into results array
         query.on('row', function (row) {
@@ -42,7 +42,10 @@ app.post('/data', function(req,res){
 
     var addedPerson = {
         "name" : req.body.peopleAdd,
-        "location" : req.body.locationAdd
+        "location" : req.body.locationAdd,
+        "spiritanimal" : req.body.spiritAnimal,
+        "address" : req.body.address
+
     };
 
     pg.connect(connectionString, function (err, client) {
@@ -54,7 +57,7 @@ app.post('/data', function(req,res){
         //console.log(query);
         //client.query(query);
 
-        client.query("INSERT INTO people (name, location) VALUES ($1, $2) RETURNING id", [addedPerson.name, addedPerson.location],
+        client.query("INSERT INTO people (name, location, spiritanimal, address) VALUES ($1, $2, $3, $4) RETURNING id", [addedPerson.name, addedPerson.location, addedPerson.spiritanimal, addedPerson.address ],
             function(err, result) {
                 if(err) {
                     console.log("Error inserting data: ", err);
@@ -64,19 +67,20 @@ app.post('/data', function(req,res){
                 res.send(true);
             });
 
-    });
+    })
 
 });
 
 app.delete('/data', function(req,res){
-    console.log(req.body.id);
+    pg.connect(connectionString, function (err, client) {
+        console.log(req.body.id);
 
-    Person.findByIdAndRemove({"_id" : req.body.id}, function(err, data){
-        if(err) console.log(err);
-        res.send(data);
+        client.query("DELETE FROM people WHERE id=$1", [req.body.id], function (err, data) {
+            if (err) console.log(err);
+            res.send(data);
+        });
+
     });
-
-
 });
 
 app.get("/*", function(req,res){
@@ -84,7 +88,8 @@ app.get("/*", function(req,res){
     res.sendFile(path.join(__dirname, "./public", file));
 });
 
-app.set("port", process.env.PORT || 5000);
+app.set("port", process.env.PORT || 4999);
 app.listen(app.get("port"), function(){
     console.log("Listening on port: ", app.get("port"));
 });
+//Zahir was here//
